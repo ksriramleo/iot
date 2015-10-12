@@ -41,10 +41,10 @@ public class InvoiceProcessor {
         invoiceProcessor.createInvoice();
     }
     static {
-        headerMap.put(PAYPAL_USERID, "ksriram_leo-facilitator_api1.rediffmail.com");
-        headerMap.put(PAYPAL_PASSWORD, "UYNXXY4N6LMYHV62");
-        headerMap.put(PAYPAL_SIGNATURE, "AIKR3jEl4..kZrGA6Nsu5aKQ2ctrATtTn2NgXrWHnZjn3Z2OUCssYkVb");
-        headerMap.put(SANDBOX_ID, "APP-80W284485P519543T");
+        headerMap.put(PAYPAL_USERID, "");
+        headerMap.put(PAYPAL_PASSWORD, "");
+        headerMap.put(PAYPAL_SIGNATURE, "");
+        headerMap.put(SANDBOX_ID, "");
         headerMap.put(REQUEST_TYPE, "JSON");
         headerMap.put(RESPONSE_TYPE, "JSON");
     }
