@@ -14,8 +14,9 @@ import java.io.IOException;
 public class SpringRestServiceSim {
     @RequestMapping(value = "", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public String raspBerryPiService(@RequestBody String request) {
+    public String raspBerryPiService(@RequestBody String request, @RequestHeader(value="MAC", defaultValue = "123") String mac) {
         System.out.println(request);
+        System.out.println(mac);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Item item = objectMapper.readValue(request, Item.class);

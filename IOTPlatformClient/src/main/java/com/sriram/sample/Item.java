@@ -11,7 +11,6 @@ public class Item {
 
     private String sku;
 
-
     public String getTime() {
         return time;
     }
