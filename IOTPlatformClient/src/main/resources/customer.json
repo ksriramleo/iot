@@ -1,0 +1,33 @@
+{
+  "type":"object",
+  "$schema":"http://json-schema/org/draft-04/hyper-schema",
+  "name":"customer",
+  "description":"Customer details",
+  "id":"customer",
+  "properties": {
+    "customer_id": {
+      "type":"number",
+      "description":"customer id generated for each customer",
+    },
+    "first_name": {
+      "type":"string",
+      "description":"customer first name"
+    },
+    "last_name": {
+      "type":"string",
+      "description":"customer last name"
+    },
+    "email": {
+      "type":"string",
+      "description":"customer email"
+    },
+    "phone_number": {
+      "type":"string",
+      "description":"customer phone number, keeping it string so that it can accommodate +"
+    },
+    "account_id": {
+      "type":"string",
+      "description":"Account ID created by braintree"
+    }
+   }
+}

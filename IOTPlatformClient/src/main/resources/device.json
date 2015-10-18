@@ -1,0 +1,30 @@
+{
+  "type":"object",
+  "$schema":"http://json-schema/org/draft-04/hyper-schema",
+  "name":"device",
+  "description":"device details",
+  "id":"device",
+  "properties": {
+    "device_id": {
+      "type":"string",
+      "description":"device id generated for each customer",
+    },
+    "mac_id": {
+      "type":"string",
+      "description":"mac id of the device"
+    },
+    "item_id": {
+      "type":"string",
+      "description":"item it is associated with"
+    },
+    "customer_id": {
+      "type":"string",
+      "description":"customer it is associated with"
+    },
+    "quantity": {
+      "type":"string",
+      "description":"quantity every time device should order for the item"
+    }
+
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "title":"customer onboarding",
+    "description":"customer onboarding",
+    "type":"object",
+    "properties": {
+        "customer":{
+            "description":"Customer object",
+            "$ref": "customer.json"
+        },
+		"device": {
+            "description":"device info.",
+            "$ref": "device.json"
+        }
+    }
+}
