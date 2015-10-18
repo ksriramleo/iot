@@ -2,6 +2,7 @@ package com.sriram.sample;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * This is the main class that is used to start the given REST simulator. It does the component scan for the given
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan("com.sriram.sample")
+@Configuration
 public class SpringApplicationSim {
 
     /**
