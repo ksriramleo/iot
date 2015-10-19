@@ -1,0 +1,50 @@
+{
+  "type":"object",
+  "$schema":"http://json-schema/org/draft-04/hyper-schema",
+  "name":"merchant",
+  "description":"Merchant details",
+  "id":"merchant",
+  "properties": {
+    "merchant_id": {
+      "type":"string",
+      "description":"merchant id generated for each merchant"
+    },
+    "business_name": {
+      "type":"string",
+      "description":"Business Legal name"
+    },
+    "merchant_account_id": {
+      "type":"string",
+      "description":"Merchant Account ID created by braintree"
+    },
+    "address": {
+      "type":"string",
+      "description": "Business address"
+    },
+    "phone_number": {
+      "type":"string",
+      "description":"merchant phone number, keeping it string so that it can accommodate +"
+    },
+    "email_address": {
+      "type":"string",
+      "description": "Merchant Email address"
+    },
+    "tax_identifier": {
+      "type": "string",
+      "description": "U.S. only business tax identifier",
+      "pattern": "^[0-9]{1,9}$"
+    },
+    "year_business_established": {
+      "type":"number",
+      "description": "Year Business Established. 2015 -> 1980, then has a “Before 1980” option"
+    },
+    "business_type": {
+      "type": "string",
+      "description": "Type of business"
+    }
+  },
+  "required": [
+    "business_name",
+    "merchant_account_id"
+  ]
+}

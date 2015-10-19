@@ -1,0 +1,36 @@
+### Java template
+*.class
+
+# IDE Project files
+.idea/
+*.idea/*
+*.iml
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Created by .ignore support plugin (hsz.mobi)
+
+.DS_Store
+.idea
+.idea/*
+.project
+.classpath
+.settings
+.checkstyle
+.checkstyle.swp
+testng.xml
+*.log
+*/test-output/*
+*/activemq-data/*
+*/.gitignore
+*/.settings/*
+*/target/*
+/target/
+/logs
+/.idea

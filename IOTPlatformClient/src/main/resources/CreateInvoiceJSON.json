@@ -1,1 +1,0 @@
-{"requestEnvelope": {"errorLanguage": "en_US"}, "invoice": {"merchantEmail": "ksriram_leo-facilitator@rediffmail.com","payerEmail": "ksriramleo@gmail.com","currencyCode": "USD","paymentTerms": "Net15","itemList": {"item": [{"name": "Thai Cuisine","description": "Food", "quantity": "1","unitPrice": "10","taxName": "Tax1","taxRate": "10.25"}]}}}

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PayaplSampleparent.iml" filepath="$PROJECT_DIR$/PayaplSampleparent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IOTDataServiceClient/IOTDataServiceClient.iml" filepath="$PROJECT_DIR$/IOTDataServiceClient/IOTDataServiceClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IOTDataServiceParent.iml" filepath="$PROJECT_DIR$/IOTDataServiceParent.iml" />
     </modules>
   </component>
 </project>
-
