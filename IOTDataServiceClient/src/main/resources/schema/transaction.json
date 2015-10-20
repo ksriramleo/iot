@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema/org/draft-04/hyper-schema",
+  "name": "transaction",
+  "description": "Transaction Details",
+  "id": "transaction",
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "description": "transaction id generated for each transaction"
+    },
+    "transaction_type": {
+        "type": "string",
+        "description": "Type of Transaction.",
+        "required": true,
+        "enum": [
+          "order",
+          "payment",
+          "void"
+        ]
+    },
+    "merchant_id": {
+      "type": "string",
+      "description": "merchant id"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "customer id"
+    },
+    "item_upc": {
+      "type": "string",
+      "description": "upc id of the item"
+    },
+    "amount": {
+      "type": "string",
+      "description": "transaction amount"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of Transaction.",
+      "required": true,
+      "enum": [
+        "in-progress",
+        "complete"
+      ]
+    },
+    "session_id": {
+      "type": "string",
+      "description": "session id"
+    }
+  }
+}

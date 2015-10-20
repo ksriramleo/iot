@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class CatalogEntity {
 
     /**
-     * Merchant Id
+     * Catalog Id
      */
     @Id
     @GeneratedValue
@@ -31,7 +31,7 @@ public class CatalogEntity {
     private String itemUpc;
 
     /**
-     * Merchant Account Id
+     * Merchant Id
      */
     @Column(name = "MERCHANT_ID",
             nullable = true,
@@ -56,7 +56,4 @@ public class CatalogEntity {
      */
     @Column(name = "AVAILABILITY")
     private Boolean availability;
-
-
-
 }

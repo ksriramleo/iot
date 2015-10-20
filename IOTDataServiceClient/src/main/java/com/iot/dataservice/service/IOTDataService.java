@@ -36,6 +36,9 @@ public class IOTDataService {
     @Autowired
     private CatalogRepository catalogRepository;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
     @RequestMapping(value = "data/customer", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public String createCustomer(@RequestBody String customerOnboardingRequest) {
@@ -262,5 +265,32 @@ public class IOTDataService {
             e.printStackTrace();
         }
         return itemCatalogJSON;
+    }
+
+    /**
+     * Save Transaction
+     */
+    @RequestMapping(value = "data/transaction", produces = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public String createTransaction(@RequestBody String transactionRequest) {
+        String transactionResponseJSON = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Transaction transaction = objectMapper.readValue(transactionRequest, Transaction.class);
+            TransactionEntity transactionEntity = new TransactionEntity();
+            transactionEntity.setItemUpc(transaction.getItemUpc());
+            transactionEntity.setCustomerId(Long.valueOf(transaction.getCustomerId()));
+            transactionEntity.setMerchantId(Long.valueOf(transaction.getMerchantId()));
+            transactionEntity.setAmount(Double.valueOf(transaction.getAmount()));
+            transactionEntity.setTransactionType(transaction.getTransactionType().toString());
+            transactionEntity.setStatus(transaction.getStatus().toString());
+            transactionEntity.setSessionId(transaction.getSessionId());
+            transactionRepository.save(transactionEntity);
+            transaction.setTransactionId(String.valueOf(transactionEntity.getTransactionId()));
+            transactionResponseJSON = objectMapper.writeValueAsString(transaction);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return transactionResponseJSON;
     }
 }
