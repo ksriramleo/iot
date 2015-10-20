@@ -19,6 +19,6 @@ public interface DeviceRepository extends CrudRepository<DeviceEntity, Long> {
     DeviceEntity findByCustomerid(Long customerId);
 
     @Modifying
-    @Query(value = "update device set ITEM_ID = :ITEM_ID, QUANTITY = :QUANTITY where DEVICE_ID = :DEVICE_ID",  nativeQuery=true)
+    @Query(value = "update device set itemid = :ITEM_ID, quantity = :QUANTITY where deviceid = :DEVICE_ID",  nativeQuery=true)
     void updateDeviceDetails(@Param("ITEM_ID") String itemid,@Param("QUANTITY") String quantity,@Param("DEVICE_ID") String deviceid);
 }

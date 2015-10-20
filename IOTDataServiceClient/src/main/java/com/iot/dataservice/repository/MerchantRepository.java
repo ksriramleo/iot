@@ -11,5 +11,5 @@ import javax.transaction.Transactional;
 @Transactional
 public interface MerchantRepository extends CrudRepository<MerchantEntity, Long> {
 
-//    MerchantEntity findByMerchantId(Long merchant_id);
+    MerchantEntity findByMerchantId(Long merchantId);
 }

@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Data
 @Entity
-@Table(name = "merchant", schema = "world")
+@Table(name = "merchant", schema = "iot")
 public class MerchantEntity {
 
     /**
@@ -19,7 +19,7 @@ public class MerchantEntity {
     @Id
     @GeneratedValue
     @Column(name = "MERCHANT_ID")
-    private Long merchant_id;
+    private Long merchantId;
 
     /**
      * Business Name

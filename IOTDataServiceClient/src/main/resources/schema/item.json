@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema/org/draft-04/hyper-schema",
+  "name": "item",
+  "description": "item details",
+  "id": "item",
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "description": "item id generated for each customer"
+    },
+    "item_upc": {
+      "type": "string",
+      "description": "upc id of the item"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "item name"
+    },
+    "item_desc": {
+      "type": "string",
+      "description": "item description"
+    }
+  }
+}

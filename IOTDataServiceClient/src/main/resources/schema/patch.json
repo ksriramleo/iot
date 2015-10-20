@@ -5,10 +5,6 @@
   "name": "json-patch",
   "description": "A JSON Patch object used for doing partial updates to resources.",
   "id": "devicepatch",
-  "required": [
-    "op",
-    "path"
-  ],
   "properties": {
     "op": {
       "type": "string",

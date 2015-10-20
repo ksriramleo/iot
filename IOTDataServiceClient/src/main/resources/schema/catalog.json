@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema/org/draft-04/hyper-schema",
+  "name": "catalog",
+  "description": "Item Catalog",
+  "id": "catalog",
+  "properties": {
+    "catalog_id": {
+      "type": "string",
+      "description": "catalog id generated for each item"
+    },
+    "item_upc": {
+      "type": "string",
+      "description": "upc id of the item"
+    },
+    "merchant_id": {
+      "type": "string",
+      "description": "merchant id"
+    },
+    "price": {
+      "type": "string",
+      "description": "item price"
+    },
+    "quantity": {
+      "type": "string",
+      "description": "quantity available with merchant"
+    },
+    "availability": {
+      "type": "boolean",
+      "description": "item availability with merchant"
+    }
+  }
+}

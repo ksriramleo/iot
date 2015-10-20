@@ -2,21 +2,16 @@ package com.iot.dataservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iot.dataservice.data.CustomerEntity;
-import com.iot.dataservice.data.CustomerInfo;
-import com.iot.dataservice.data.DeviceEntity;
-import com.iot.dataservice.data.MerchantEntity;
-import com.iot.dataservice.datatype.Device;
-import com.iot.dataservice.datatype.Merchant;
-import com.iot.dataservice.datatype.Patch;
-import com.iot.dataservice.repository.CustomerRepository;
-import com.iot.dataservice.repository.DeviceRepository;
-import com.iot.dataservice.repository.MerchantRepository;
+import com.iot.dataservice.data.*;
+import com.iot.dataservice.datatype.*;
+import com.iot.dataservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by srirkumar on 10/18/2015.
@@ -34,6 +29,12 @@ public class IOTDataService {
 
     @Autowired
     private MerchantRepository merchantRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private CatalogRepository catalogRepository;
 
     @RequestMapping(value = "data/customer", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
@@ -110,19 +111,42 @@ public class IOTDataService {
      * This method archives the merchant information
      * @param request Merchant Request
      */
-    @RequestMapping(value = "/iot_data_service/onboarding/merchant", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "data/merchant", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public void merchantOnboardingService(@RequestBody String request) {
+    public String createMerchant(@RequestBody String request) {
         ObjectMapper objectMapper = new ObjectMapper();
+        String merchantResponseJSON = null;
         try {
             Merchant merchant = objectMapper.readValue(request, Merchant.class);
             MerchantEntity merchantEntity = new MerchantEntity();
             merchantEntity.setBusinessName(merchant.getBusinessName());
             merchantEntity.setMerchantAccountNumber(merchant.getMerchantAccountId());
             merchantRepository.save(merchantEntity);
+            merchant.setMerchantId(String.valueOf(merchantEntity.getMerchantId()));
+            merchantResponseJSON = objectMapper.writeValueAsString(merchant);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return merchantResponseJSON;
+    }
+
+    @RequestMapping(value="data/merchant/{merchantId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getMerchantByMerchantId(@PathVariable String merchantId) {
+        String merchantResponseJSON = null;
+        MerchantEntity merchantEntity = merchantRepository.findByMerchantId(Long.valueOf(merchantId));
+        if (merchantEntity != null) {
+            Merchant merchant = new Merchant();
+            merchant.setBusinessName(merchantEntity.getBusinessName());
+            merchant.setMerchantAccountId(merchantEntity.getMerchantAccountNumber());
+            merchant.setMerchantId(String.valueOf(merchantEntity.getMerchantId()));
+                try {
+                    merchantResponseJSON = objectMapper.writeValueAsString(merchant);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+        }
+        return merchantResponseJSON;
     }
 
     /**
@@ -148,20 +172,95 @@ public class IOTDataService {
     /**
      * This method will be used to update the device details
      */
-    @RequestMapping(value = "/iot_data_service/onboarding/device/{device_id}", produces = "application/json", method = RequestMethod.PATCH)
+    @RequestMapping(value = "data/device/{device_id}", produces = "application/json", method = RequestMethod.PATCH)
     @ResponseBody
-    public void udpateDeviceDetails(@RequestBody String request, @PathParam("device_id") String device_id) {
+    public void udpateDeviceDetails(@RequestBody String request, @PathVariable String device_id) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Patch devicePatch = objectMapper.readValue(request, Patch.class);
-            if(devicePatch.getOp().toString().equals("REMOVE")) {
+            if(devicePatch.getOp().toString().equalsIgnoreCase("remove")) {
                 deviceRepository.delete(Long.valueOf(device_id));
-            } else if (devicePatch.getOp().toString().equals("UPDATE")) {
+            } else if (devicePatch.getOp().toString().equalsIgnoreCase("replace")) {
                 DeviceEntity device = deviceRepository.findOne(Long.valueOf(device_id));
                 deviceRepository.updateDeviceDetails(devicePatch.getItemId(), devicePatch.getQuantity(), device_id);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Return item details by item id
+     */
+    @RequestMapping(value = "data/item/{itemId}", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public String getItemDetails(@PathVariable String itemId) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String itemResponseJSON = null;
+        try {
+            ItemEntity itemEntity = itemRepository.findOne(Long.valueOf(itemId));
+            Item item = new Item();
+            item.setItemId(String.valueOf(itemEntity.getItemId()));
+            item.setItemName(itemEntity.getItemName());
+            item.setItemUpc(itemEntity.getItemUpc());
+            item.setItemDesc(itemEntity.getItemDesc());
+            itemResponseJSON = objectMapper.writeValueAsString(item);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return itemResponseJSON;
+    }
+
+    /**
+     * Return item details by item id
+     */
+    @RequestMapping(value = "data/items", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public String getItemList() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String itemListResponseJSON = null;
+        try {
+            List<ItemEntity> itemEntityList = (List<ItemEntity>) itemRepository.findAll();
+            List<Item> itemList = new ArrayList<Item>();
+            for(ItemEntity itemEntity: itemEntityList) {
+                Item item = new Item();
+                item.setItemId(String.valueOf(itemEntity.getItemId()));
+                item.setItemName(itemEntity.getItemName());
+                item.setItemUpc(itemEntity.getItemUpc());
+                item.setItemDesc(itemEntity.getItemDesc());
+                itemList.add(item);
+            }
+            itemListResponseJSON = objectMapper.writeValueAsString(itemList);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return itemListResponseJSON;
+    }
+
+    /**
+     * Return catalog by item upc
+     */
+    @RequestMapping(value = "data/catalog/{itemUpc}", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public String getItemCatalog(@PathVariable String itemUpc) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String itemCatalogJSON = null;
+        try {
+            List<CatalogEntity> catalogEntityList = catalogRepository.findByItemUpc(itemUpc);
+            List<Catalog> catalogList = new ArrayList<Catalog>();
+            for(CatalogEntity catalogEntity : catalogEntityList) {
+                Catalog catalog = new Catalog();
+                catalog.setMerchantId(String.valueOf(catalogEntity.getMerchantId()));
+                catalog.setItemUpc(catalogEntity.getItemUpc());
+                catalog.setAvailability(catalogEntity.getAvailability());
+                catalog.setPrice(String.valueOf(catalogEntity.getPrice()));
+                catalog.setQuantity(String.valueOf(catalogEntity.getQuantity()));
+                catalogList.add(catalog);
+            }
+            itemCatalogJSON = objectMapper.writeValueAsString(catalogList);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return itemCatalogJSON;
     }
 }
