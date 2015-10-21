@@ -7,7 +7,7 @@
   "properties": {
     "transaction_id": {
       "type": "string",
-      "description": "transaction id generated for each transaction"
+      "description": "transaction id is unique for each transaction"
     },
     "transaction_type": {
         "type": "string",

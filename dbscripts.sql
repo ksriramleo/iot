@@ -24,15 +24,16 @@ create table catalog (
  );
 
 -- Transaction Table
- create table transaction (
- 	TRANSACTION_ID int(11) unsigned zerofill not null auto_increment primary key,
-     TRANSACTION_TYPE varchar(50),
-     MERCHANT_ID int(11),
-     CUSTOMER_ID int(11),
-     ITEM_UPC varchar(255),
-     AMOUNT float(9,2),
-     STATUS varchar(50),
-     SESSION_ID varchar(50)
-  );
+create table transaction (
+	SERIAL_ID int(11) unsigned zerofill not null auto_increment primary key,
+	TRANSACTION_ID varchar(255),
+    TRANSACTION_TYPE varchar(50),
+    MERCHANT_ID int(11),
+    CUSTOMER_ID int(11),
+    ITEM_UPC varchar(255),
+    AMOUNT float(9,2),
+    STATUS varchar(50),
+    SESSION_ID varchar(50)
+ );
 
 

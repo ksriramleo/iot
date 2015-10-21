@@ -7,6 +7,7 @@ import javax.persistence.*;
  * Created by awmishra on 10/19/2015.
  */
 @Data
+@Entity
 @Table(name = "transaction" , schema = "iot")
 public class TransactionEntity {
 
@@ -15,8 +16,18 @@ public class TransactionEntity {
      */
     @Id
     @GeneratedValue
-    @Column(name = "TRANSACTION_ID")
-    private Long transactionId;
+    @Column(name = "SERIAL_ID")
+    private Long serialId;
+
+    /**
+     * Transaction Id
+     */
+    @Column(name = "TRANSACTION_ID",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 50)
+    private String transactionId;
 
     /**
      * Transaction Type

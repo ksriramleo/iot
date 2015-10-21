@@ -10,4 +10,6 @@ import javax.transaction.Transactional;
  */
 @Transactional
 public interface TransactionRepository extends CrudRepository<TransactionEntity, Long> {
+
+    TransactionEntity findByTransactionId(String transactionId);
 }

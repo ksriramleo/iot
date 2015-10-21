@@ -278,6 +278,7 @@ public class IOTDataService {
         try {
             Transaction transaction = objectMapper.readValue(transactionRequest, Transaction.class);
             TransactionEntity transactionEntity = new TransactionEntity();
+            transactionEntity.setTransactionId(transaction.getTransactionId());
             transactionEntity.setItemUpc(transaction.getItemUpc());
             transactionEntity.setCustomerId(Long.valueOf(transaction.getCustomerId()));
             transactionEntity.setMerchantId(Long.valueOf(transaction.getMerchantId()));
@@ -286,7 +287,6 @@ public class IOTDataService {
             transactionEntity.setStatus(transaction.getStatus().toString());
             transactionEntity.setSessionId(transaction.getSessionId());
             transactionRepository.save(transactionEntity);
-            transaction.setTransactionId(String.valueOf(transactionEntity.getTransactionId()));
             transactionResponseJSON = objectMapper.writeValueAsString(transaction);
         } catch (IOException e) {
             e.printStackTrace();
