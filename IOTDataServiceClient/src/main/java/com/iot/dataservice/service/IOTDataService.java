@@ -1,15 +1,45 @@
 package com.iot.dataservice.service;
 
+import com.braintreegateway.BraintreeGateway;
+import com.braintreegateway.Environment;
+import com.braintreegateway.MerchantAccount;
+import com.braintreegateway.MerchantAccountRequest;
+import com.braintreegateway.PaymentMethodNonce;
+import com.braintreegateway.Result;
+import com.braintreegateway.TransactionRequest;
+import com.braintreegateway.ValidationError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iot.dataservice.data.*;
-import com.iot.dataservice.datatype.*;
-import com.iot.dataservice.repository.*;
+import com.iot.dataservice.data.CatalogEntity;
+import com.iot.dataservice.data.CustomerEntity;
+import com.iot.dataservice.data.CustomerInfo;
+import com.iot.dataservice.data.DeviceEntity;
+import com.iot.dataservice.data.ItemEntity;
+import com.iot.dataservice.data.MerchantEntity;
+import com.iot.dataservice.data.TransactionEntity;
+import com.iot.dataservice.datatype.Catalog;
+import com.iot.dataservice.datatype.Device;
+import com.iot.dataservice.datatype.Item;
+import com.iot.dataservice.datatype.Merchant;
+import com.iot.dataservice.datatype.Patch;
+import com.iot.dataservice.datatype.Payment;
+import com.iot.dataservice.datatype.TransactionInfo;
+import com.iot.dataservice.repository.CatalogRepository;
+import com.iot.dataservice.repository.CustomerRepository;
+import com.iot.dataservice.repository.DeviceRepository;
+import com.iot.dataservice.repository.ItemRepository;
+import com.iot.dataservice.repository.MerchantRepository;
+import com.iot.dataservice.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +68,13 @@ public class IOTDataService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    private static final BraintreeGateway gateway = new BraintreeGateway(
+            Environment.SANDBOX,
+            "3gjxkqn9j4gvkwv8",
+            "cbx62tfstsdnjr45",
+            "7e4a4983f78893d6cd49db5aa0763b8a"
+            );
 
     @RequestMapping(value = "data/customer", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
@@ -276,7 +313,7 @@ public class IOTDataService {
         String transactionResponseJSON = null;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            Transaction transaction = objectMapper.readValue(transactionRequest, Transaction.class);
+            TransactionInfo transaction = objectMapper.readValue(transactionRequest, TransactionInfo.class);
             TransactionEntity transactionEntity = new TransactionEntity();
             transactionEntity.setTransactionId(transaction.getTransactionId());
             transactionEntity.setItemUpc(transaction.getItemUpc());
@@ -292,5 +329,90 @@ public class IOTDataService {
             e.printStackTrace();
         }
         return transactionResponseJSON;
+    }
+
+    /**
+     * Save Transaction
+     */
+    @RequestMapping(value = "merchant/create", method = RequestMethod.GET)
+    @ResponseBody
+    public String makePayment() {
+                MerchantAccountRequest merchantAccountRequest = new MerchantAccountRequest().
+                individual().
+                firstName("Jane").
+                lastName("Doe").
+                email("jane@14ladders.com").
+                phone("5553334444").
+                dateOfBirth("1981-11-19").
+                ssn("456-45-4567").
+                address().
+                streetAddress("111 Main St").
+                locality("Chicago").
+                region("IL").
+                postalCode("60622").done().done().business()
+                .legalName("Jane's Ladders")
+                .dbaName("Jane's Ladders")
+                .taxId("98-7654321")
+                .address()
+                .streetAddress("111 Main St").
+                locality("Chicago").
+                region("IL").
+                postalCode("60622").
+                done().done().funding().
+                descriptor("Blue Ladders").
+                destination(MerchantAccount.FundingDestination.BANK).
+                email("funding@blueladders.com").
+                mobilePhone("6006006666").
+                accountNumber("1123581321").
+                routingNumber("071101307").
+                done().
+                tosAccepted(true).
+                masterMerchantAccountId("syntelinc").
+                id("Store_3");
+
+
+        Result<MerchantAccount> result = gateway.merchantAccount().create(merchantAccountRequest);
+        return "";
+
+    }
+    /**
+     * Save Transaction
+     */
+    @RequestMapping(value = "merchant/transaction", produces = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public String makePayment(@RequestBody String paymentRequest) {
+        String paymentResponseJSON = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Payment payment = objectMapper.readValue(paymentRequest, Payment.class);
+            Result<PaymentMethodNonce> paymentMethodNonceResult = gateway.paymentMethodNonce().create(payment.getCustomerToken());
+            TransactionRequest transactionRequest = new TransactionRequest();
+            transactionRequest
+                    .amount(new BigDecimal(payment.getAmount()))
+                    .serviceFeeAmount(new BigDecimal(payment.getServiceFee()))
+                    .merchantAccountId(payment.getSubMerchantId())
+                    .paymentMethodNonce(paymentMethodNonceResult.getTarget().getNonce()).options().submitForSettlement(true).done();
+            Result<com.braintreegateway.Transaction> paymentTransaction = gateway.transaction().sale(transactionRequest);
+
+            if (paymentTransaction != null && paymentTransaction.getErrors() != null) {
+                List<ValidationError> allValidationErrors = paymentTransaction.getErrors().getAllValidationErrors();
+                payment.setResponseDescription(appendValidationErrors(allValidationErrors));
+            } else {
+                payment.setPaymentId(paymentTransaction.getTarget().getId());
+                payment.setResponseAuthorizationCode(paymentTransaction.getTarget().getProcessorAuthorizationCode());
+            }
+            paymentResponseJSON = objectMapper.writeValueAsString(payment);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return paymentResponseJSON;
+    }
+
+    public String appendValidationErrors(List<ValidationError> allValidationErrors) {
+        StringBuffer sb = new StringBuffer();
+        for (ValidationError validationError:allValidationErrors) {
+            sb.append(validationError.getMessage()).append("\n");
+        }
+        return sb.toString();
     }
 }
