@@ -1,12 +1,15 @@
 package com.iot.dataservice.data;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 /**
  * Created by srirkumar on 10/18/2015.
  */
 @Entity
-@Table(name = "customer", schema = "world")
+@Data
+@Table(name = "customer", schema = "iot")
 public class CustomerEntity {
 
     @Id
@@ -14,72 +17,103 @@ public class CustomerEntity {
     @Column(name = "customerId")
     private Long customerId;
 
+    /**
+     * Customer First Name
+     */
+    @Column(name = "FIRST_NAME",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
     private String firstname;
 
+    /**
+     * Customer Last Name
+     */
+    @Column(name = "LAST_NAME",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
     private String lastname;
 
+    /**
+     * Customer Email
+     */
+    @Column(name = "EMAIL",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
     private String email;
 
+    /**
+     * Customer First Name
+     */
+    @Column(name = "PHONE_NUMBER",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 15)
     private String phonenumber;
 
-    private String accountnumber;
+    /**
+     * Brain Tree Customer Id
+     */
+    @Column(name = "BT_CUSTOMER_ID",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String btCustomerId;
 
-    public String getAccountnumber() {
-        return accountnumber;
-    }
+    /**
+     * Payment Method Token
+     */
+    @Column(name = "PAYMENT_METHOD_TOKEN",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String paymentMethodToken;
 
-    public void setAccountnumber(String accountnumber) {
-        this.accountnumber = accountnumber;
-    }
+    /**
+     * Customer Address Line 1
+     */
+    @Column(name = "ADDRESS_LINE1",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String addressLine1;
 
-    public Long getCustomerId() {
-        return customerId;
-    }
+    /**
+     * Customer address locality
+     */
+    @Column(name = "LOCALITY",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String locality;
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
+    /**
+     * Customer Address Region
+     */
+    @Column(name = "REGION",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String region;
 
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhonenumber() {
-        return phonenumber;
-    }
-
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
-    }
-
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("FirstName: " + this.firstname)
-                .append(" LastName: " + this.lastname)
-                .append(" Email: " + this.email)
-                .append(" PhoneNumber: " + this.phonenumber)
-                .append(" AccountNumber: " + this.accountnumber)
-                .append(" CustomerID: " + this.customerId);
-        return sb.toString();
-    }
+    /**
+     * Customer Address Postal Code
+     */
+    @Column(name = "POSTAL_CODE",
+            nullable = true,
+            insertable = true,
+            updatable = false,
+            length = 255)
+    private String postalCode;
 }

@@ -1,0 +1,153 @@
+{
+  "type":"object",
+  "$schema":"http://json-schema/org/draft-04/hyper-schema",
+  "name":"merchant",
+  "description":"Merchant details",
+  "id":"merchant",
+  "properties": {
+    "merchant_id": {
+      "type":"string",
+      "description":"merchant id generated for each merchant in application"
+    },
+    "individual": {
+      "description": "Sub Merchant information associated with a merchant account.",
+      "type": "object",
+      "properties": {
+        "first_name": {
+          "type":"string",
+          "description":"Individuals first name",
+          "maxLength": 255
+        },
+        "last_name": {
+          "type":"string",
+          "description":"Individual last name",
+          "maxLength": 255
+        },
+        "phone_number": {
+          "type":"string",
+          "description":"customer phone number, keeping it string so that it can accommodate +",
+          "pattern": "^[0-9]{1,10}?$"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address comprised of ASCII characters."
+        },
+        "date_of_birth": {
+          "type": "string",
+          "description": "The applicant's date of birth. Values can be passed as YYYYMMDD or YYYY-MM-DD.eg 1981-11-19 format"
+        },
+        "ssn": {
+          "type": "string",
+          "description": "Individual SSN in XXX-XX-XXXX format. eg 456-45-4567"
+        },
+        "street_address": {
+          "type": "string",
+          "description": "The street address. Street address must be less than or equal to 255 characters. Must contain at least 1 digit. eg. 111 Main St",
+          "maxLength": 255
+        },
+        "locality": {
+          "type": "string",
+          "description": "The locality/city. 255 character maximum. i.e. city eg. Chicago",
+          "maxLength": 255
+        },
+        "region": {
+          "description": "The state or province. The region must be a 2-letter abbreviation and must be less than or equal to 255 characters.eg. FL or IL",
+          "type": "string",
+          "maxLength": 255
+        },
+        "postal_code": {
+          "description": "Postal code must be a string of 5 or 9 alphanumeric digits, optionally separated by a dash or a space. Spaces, hyphens, and all other special characters are ignored.. eg. 21030",
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 9
+        }
+      }
+    },
+    "business": {
+      "type": "object",
+      "properties": {
+        "legal_name": {
+          "type":"string",
+          "description":"Business Legal name. Required if tax id is provided",
+          "minLength":1,
+          "maxLength": 40
+        },
+        "dba_name": {
+          "type":"string",
+          "description":"Doing business as name",
+          "minLength":1,
+          "maxLength": 40
+        },
+        "tax_id": {
+          "description": "The 9-digit numeric value associated with the business' tax identity. Required if legal_name has been provided. eg. 987654321",
+          "type": "string",
+          "pattern": "^[0-9]{1,9}$"
+        },
+        "street_address": {
+          "type": "string",
+          "description": "The street address. Street address must be less than or equal to 255 characters. Must contain at least 1 digit. eg. 111 Main St",
+          "maxLength": 300
+        },
+        "locality": {
+          "type": "string",
+          "description": "The locality/city. 255 character maximum. i.e. city eg. Chicago",
+          "maxLength": 255
+        },
+        "region": {
+          "description": "The state or province. The region must be a 2-letter abbreviation and must be less than or equal to 255 characters.eg. FL or IL",
+          "type": "string",
+          "maxLength": 255
+        },
+        "postal_code": {
+          "description": "Postal code must be a string of 5 or 9 alphanumeric digits, optionally separated by a dash or a space. Spaces, hyphens, and all other special characters are ignored.. eg. 21030",
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 9
+        }
+      }
+    },
+    "funding": {
+      "type": "object",
+      "properties": {
+        "descriptor": {
+          "type":"string",
+          "description":"This field is optional. This field sets the description that will appear on the sub-merchant's deposits from Braintree.",
+          "minLength":1,
+          "maxLength": 255
+        },
+        "destination": {
+          "type": "string",
+          "description": "Funding destination is required, and the value can be email, mobile phone, or bank",
+          "required": true,
+          "enum": [
+            "bank",
+            "mobile_phone",
+            "email",
+            "unrecognized"
+          ]
+        },
+        "email": {
+          "type":"string",
+          "description": "Email address. Required if funding destination is set to email"
+        },
+        "mobile_phone": {
+          "type":"string",
+          "description": "Mobile Phone. Required if funding destination is set to Mobile",
+          "pattern": "^[0-9]{1,10}?$"
+        },
+        "account_number": {
+          "description": "Required if fundingDestination is set to bank. These fields must not be sent when fundingDestination is set to mobile phone or email.",
+          "type": "string"
+        },
+        "routing_number": {
+          "description": "Required if fundingDestination is set to bank. These fields must not be sent when fundingDestination is set to mobile phone or email.",
+          "type": "string"
+        }
+      }
+    },
+    "id": {
+      "type": "string",
+      "description": "Specifies the ID of the Sub Merchant's account, which can be referenced when creating transactions with service fees. Max 32 characters; must be unique, cannot be 'all' or 'new', and must contain only letters, numbers, _ and -. If not provided, Braintree will automatically generate one."
+    }
+  }
+}

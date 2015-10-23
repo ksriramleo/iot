@@ -12,4 +12,6 @@ import javax.transaction.Transactional;
 public interface CustomerRepository extends CrudRepository<CustomerEntity, Long> {
 
     CustomerEntity findByCustomerId(Long customerid);
+
+    CustomerEntity findByBTCustomerId(String btCustomerId);
 }

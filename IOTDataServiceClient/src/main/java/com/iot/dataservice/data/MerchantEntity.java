@@ -34,11 +34,11 @@ public class MerchantEntity {
     /**
      * Merchant Account Id
      */
-    @Column(name = "MERCH_ACCT_ID",
+    @Column(name = "SUB_MERCHANT_ID",
             nullable = true,
             insertable = true,
             updatable = false,
             length = 255)
-    private String merchantAccountNumber;
+    private String subMerchantId;
 
 }

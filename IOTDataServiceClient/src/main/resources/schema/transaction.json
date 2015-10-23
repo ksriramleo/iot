@@ -21,11 +21,11 @@
     },
     "merchant_id": {
       "type": "string",
-      "description": "merchant id"
+      "description": "Brain Tree Sub-Merchant Id"
     },
     "customer_id": {
       "type": "string",
-      "description": "customer id"
+      "description": "Brain Tree Customer Id"
     },
     "item_upc": {
       "type": "string",

@@ -1,14 +1,16 @@
 package com.iot.dataservice.service;
 
+import com.braintreegateway.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iot.dataservice.data.*;
 import com.iot.dataservice.datatype.*;
+import com.iot.dataservice.datatype.MerchantOnboarding;
+import com.iot.dataservice.datatype.Transaction;
 import com.iot.dataservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,8 @@ public class IOTDataService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    private static final BraintreeGateway gateway = new BraintreeGateway(Environment.SANDBOX, "j7qppkys6zg4qqdr", "dwkmcjgk7xwt6trz", "f5500775a53383cef86a16c8c092f566");
+
     @RequestMapping(value = "data/customer", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public String createCustomer(@RequestBody String customerOnboardingRequest) {
@@ -51,7 +55,7 @@ public class IOTDataService {
                 customerRepository.save(customerEntity);
 
                 DeviceEntity deviceEntity = customerInfoFromJson.getDevice();
-                deviceEntity.setCustomerid(customerEntity.getCustomerId());
+//                deviceEntity.setCustomerid(customerEntity.getCustomerId());
                 deviceRepository.save(deviceEntity);
 
                 CustomerInfo customerResponse = buildResponse(customerEntity, deviceEntity);
@@ -72,15 +76,14 @@ public class IOTDataService {
         return customerInfo;
     }
 
-    @RequestMapping(value="data/customer/macid/{macId}", method = RequestMethod.GET)
+    @RequestMapping(value = "data/customer/macid/{macId}", method = RequestMethod.GET)
     @ResponseBody
     public String getCustomerByMacId(@PathVariable String macId) {
         String customerResponseJSON = null;
         DeviceEntity deviceEntity = deviceRepository.findByMacid(macId);
         if (deviceEntity != null) {
-            CustomerEntity customerEntity = customerRepository.findByCustomerId(deviceEntity.getCustomerid());
+            CustomerEntity customerEntity = customerRepository.findByBTCustomerId(deviceEntity.getBtCustomerId());
             CustomerInfo customerResponse = buildResponse(customerEntity, deviceEntity);
-
             try {
                 customerResponseJSON = objectMapper.writeValueAsString(customerResponse);
             } catch (JsonProcessingException e) {
@@ -90,7 +93,7 @@ public class IOTDataService {
         return customerResponseJSON;
     }
 
-    @RequestMapping(value="data/customer/{customerId}", method = RequestMethod.GET)
+    @RequestMapping(value = "data/customer/{customerId}", method = RequestMethod.GET)
     @ResponseBody
     public String getCustomerByCustomerId(@PathVariable String customerId) {
         String customerResponseJSON = null;
@@ -110,66 +113,79 @@ public class IOTDataService {
         return customerResponseJSON;
     }
 
-    /**
-     * This method archives the merchant information
-     * @param request Merchant Request
-     */
-    @RequestMapping(value = "data/merchant", produces = "application/json", method = RequestMethod.POST)
-    @ResponseBody
-    public String createMerchant(@RequestBody String request) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String merchantResponseJSON = null;
-        try {
-            Merchant merchant = objectMapper.readValue(request, Merchant.class);
-            MerchantEntity merchantEntity = new MerchantEntity();
-            merchantEntity.setBusinessName(merchant.getBusinessName());
-            merchantEntity.setMerchantAccountNumber(merchant.getMerchantAccountId());
-            merchantRepository.save(merchantEntity);
-            merchant.setMerchantId(String.valueOf(merchantEntity.getMerchantId()));
-            merchantResponseJSON = objectMapper.writeValueAsString(merchant);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return merchantResponseJSON;
-    }
-
-    @RequestMapping(value="data/merchant/{merchantId}", method = RequestMethod.GET)
+    @RequestMapping(value = "data/merchant/{merchantId}", method = RequestMethod.GET)
     @ResponseBody
     public String getMerchantByMerchantId(@PathVariable String merchantId) {
         String merchantResponseJSON = null;
         MerchantEntity merchantEntity = merchantRepository.findByMerchantId(Long.valueOf(merchantId));
         if (merchantEntity != null) {
-            Merchant merchant = new Merchant();
-            merchant.setBusinessName(merchantEntity.getBusinessName());
-            merchant.setMerchantAccountId(merchantEntity.getMerchantAccountNumber());
-            merchant.setMerchantId(String.valueOf(merchantEntity.getMerchantId()));
-                try {
-                    merchantResponseJSON = objectMapper.writeValueAsString(merchant);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+            MerchantOnboarding merchantOnboarding = new MerchantOnboarding();
+            Business merchantBusiness = new Business();
+            merchantBusiness.setLegalName(merchantEntity.getBusinessName());
+            merchantOnboarding.setId(merchantEntity.getSubMerchantId());
+            merchantOnboarding.setBusiness(merchantBusiness);
+            try {
+                merchantResponseJSON = objectMapper.writeValueAsString(merchantOnboarding);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
         return merchantResponseJSON;
     }
 
     /**
-     * This method will be used to update the device details
+     * This method will be used for merchant onboarding and saving the information
      */
-    @RequestMapping(value = "/iot_data_service/onboarding/device", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "merchant/onboarding", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public void deviceOnboardingService(@RequestBody String request) {
+    public String merchantOnboardingService(@RequestBody String request) {
         ObjectMapper objectMapper = new ObjectMapper();
+        String merchantOnboardingResponseJSON = null;
         try {
-            Device device = objectMapper.readValue(request, Device.class);
-            DeviceEntity deviceEntity = new DeviceEntity();
-            deviceEntity.setCustomerid(Long.valueOf(device.getCustomerId()));
-            deviceEntity.setItemid(Long.valueOf(device.getItemId()));
-            deviceEntity.setMacid(device.getMacId());
-            deviceEntity.setQuantity(Long.valueOf(device.getQuantity()));
-            deviceRepository.save(deviceEntity);
+            MerchantOnboarding merchantOnboardingRequest = objectMapper.readValue(request, MerchantOnboarding.class);
+            MerchantAccountRequest merchantAccountRequest = new MerchantAccountRequest()
+                    .individual()
+                        .firstName(merchantOnboardingRequest.getIndividual().getFirstName())
+                        .lastName(merchantOnboardingRequest.getIndividual().getLastName())
+                        .email(merchantOnboardingRequest.getIndividual().getEmail())
+                        .phone(merchantOnboardingRequest.getIndividual().getPhoneNumber())
+                        .dateOfBirth(merchantOnboardingRequest.getIndividual().getDateOfBirth())
+                        .ssn(merchantOnboardingRequest.getIndividual().getSsn())
+                        .address()
+                            .streetAddress(merchantOnboardingRequest.getIndividual().getStreetAddress())
+                            .locality(merchantOnboardingRequest.getIndividual().getLocality())
+                            .region(merchantOnboardingRequest.getIndividual().getRegion())
+                            .postalCode(merchantOnboardingRequest.getIndividual().getPostalCode())
+                        .done()
+                    .done()
+                    .business()
+                        .legalName(merchantOnboardingRequest.getBusiness().getLegalName())
+                        .dbaName(merchantOnboardingRequest.getBusiness().getDbaName())
+                        .taxId(merchantOnboardingRequest.getBusiness().getTaxId())
+                        .address()
+                            .streetAddress(merchantOnboardingRequest.getBusiness().getStreetAddress())
+                            .locality(merchantOnboardingRequest.getBusiness().getLocality())
+                            .region(merchantOnboardingRequest.getBusiness().getRegion())
+                            .postalCode(merchantOnboardingRequest.getBusiness().getPostalCode())
+                        .done()
+                    .done()
+                    .funding()
+                        .descriptor(merchantOnboardingRequest.getFunding().getDescriptor())
+                        .destination(MerchantAccount.FundingDestination.valueOf(merchantOnboardingRequest.getFunding().getDestination().toString()))
+                        .email(merchantOnboardingRequest.getFunding().getEmail())
+                        .mobilePhone(merchantOnboardingRequest.getFunding().getMobilePhone())
+                        .accountNumber(merchantOnboardingRequest.getFunding().getAccountNumber())
+                        .routingNumber(merchantOnboardingRequest.getFunding().getRoutingNumber())
+                    .done()
+                    .tosAccepted(true)
+                    .masterMerchantAccountId("pappustore")
+                    .id("Store_1");
+            Result<MerchantAccount> result = gateway.merchantAccount().create(merchantAccountRequest);
+            merchantOnboardingResponseJSON = objectMapper.writeValueAsString(result);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return merchantOnboardingResponseJSON;
     }
 
     /**
@@ -181,7 +197,7 @@ public class IOTDataService {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Patch devicePatch = objectMapper.readValue(request, Patch.class);
-            if(devicePatch.getOp().toString().equalsIgnoreCase("remove")) {
+            if (devicePatch.getOp().toString().equalsIgnoreCase("remove")) {
                 deviceRepository.delete(Long.valueOf(device_id));
             } else if (devicePatch.getOp().toString().equalsIgnoreCase("replace")) {
                 DeviceEntity device = deviceRepository.findOne(Long.valueOf(device_id));
@@ -225,7 +241,7 @@ public class IOTDataService {
         try {
             List<ItemEntity> itemEntityList = (List<ItemEntity>) itemRepository.findAll();
             List<Item> itemList = new ArrayList<Item>();
-            for(ItemEntity itemEntity: itemEntityList) {
+            for (ItemEntity itemEntity : itemEntityList) {
                 Item item = new Item();
                 item.setItemId(String.valueOf(itemEntity.getItemId()));
                 item.setItemName(itemEntity.getItemName());
@@ -251,7 +267,7 @@ public class IOTDataService {
         try {
             List<CatalogEntity> catalogEntityList = catalogRepository.findByItemUpc(itemUpc);
             List<Catalog> catalogList = new ArrayList<Catalog>();
-            for(CatalogEntity catalogEntity : catalogEntityList) {
+            for (CatalogEntity catalogEntity : catalogEntityList) {
                 Catalog catalog = new Catalog();
                 catalog.setMerchantId(String.valueOf(catalogEntity.getMerchantId()));
                 catalog.setItemUpc(catalogEntity.getItemUpc());
@@ -292,5 +308,17 @@ public class IOTDataService {
             e.printStackTrace();
         }
         return transactionResponseJSON;
+    }
+
+    /**
+     * This method archives the merchant information
+     *
+     * @param merchantOnboarding Merchant onboarding Request
+     */
+    public void saveMerchant(MerchantOnboarding merchantOnboarding) {
+        MerchantEntity merchantEntity = new MerchantEntity();
+        merchantEntity.setBusinessName(merchantOnboarding.getBusiness().getLegalName());
+        merchantEntity.setSubMerchantId(merchantOnboarding.getId());
+        merchantRepository.save(merchantEntity);
     }
 }
