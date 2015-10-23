@@ -1,0 +1,45 @@
+{
+    "type":"object",
+    "$schema":"http://json-schema/org/draft-04/hyper-schema",
+    "name":"payment",
+    "description":"make payment transaction",
+    "id":"payment",
+    "properties": {
+        "customer_account_id": {
+            "type":"string",
+            "description":"customer account id from brain tree"
+        },
+        "customer_token":{
+            "type":"string",
+            "description":"customer token that came back from brain tree"
+        },
+        "sub_merchant_id":{
+            "type":"string",
+            "description":"brain tree merchant ID - sub merchant ID"
+        },
+        "amount":{
+            "type":"string",
+            "description":"amount that needs to go to the merchant"
+        },
+        "service_fee":{
+            "type":"string",
+            "description":"service fee to the master merchant"
+        },
+        "payment_id":{
+            "type":"string",
+            "description":"payment id that would be returned from customer"
+        },
+        "response_description":{
+            "type":"string",
+            "description":"response description. Mostly payment made, in case of error this would contain error message"
+        },
+        "response_authorization_code":{
+            "type":"string",
+            "description":"response authorization code. Unique code sent by BT"
+        },
+        "settlement_batch_id":{
+            "type":"string",
+            "description":"settlement batch ID"
+        }
+    }
+}
